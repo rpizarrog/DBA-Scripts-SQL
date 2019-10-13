@@ -1,5 +1,5 @@
 /* TRIGGER para empleados para que funciones bitacora */
-/* Actualizacion final del trigegr para clientes */
+/* Actualizacion final del trigegr para empleados */
 create or replace 
 trigger trbitacoraempleados
   after insert or delete or update
