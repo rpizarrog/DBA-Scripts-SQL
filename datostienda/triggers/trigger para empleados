@@ -1,0 +1,64 @@
+/* TRIGGER para empleados para que funciones bitacora */
+/* Actualizacion final del trigegr para clientes */
+create or replace 
+trigger trbitacoraempleados
+  after insert or delete or update
+  on empleados
+   for each row
+  declare -- Estas variable son de uso temporal en el trigger y sirven para enviar datos a la tabla bitacora
+    vconsecutivo integer;
+    vfecha date;
+    vhora char(8);
+    vusuario varchar(20);
+    vip varchar(20);
+    voperacion varchar(20);
+    vtabla varchar(20);
+    vcampo varchar(20);
+    vvalor varchar(20);
+  begin
+    if inserting then
+    -- Instrucción para agregar a bitacora cuando insert en clientes
+      select sqconsecutivo.nextval, sysdate, to_char(sysdate, 'HH24:MI:SS'),
+        user, sys_context('userenv','ip_address'), 'INSERT', 'EMPLEADOS', 
+        'NOEMPLEADO', :NEW.noempleado -- nuevo valor en trigger  
+        into vconsecutivo, vfecha, vhora, vusuario,vip, voperacion,
+          vtabla, vcampo, vvalor
+          from dual;
+     
+      insert into bitacora (consecutivo, fecha, hora, usuario, ip, operacion, tabla, campo, valor)
+       values (vconsecutivo, vfecha, vhora, vusuario, vip, voperacion, vtabla, vcampo, vvalor);
+    end if; -- inserting  
+
+if deleting then
+    -- Instrucción para agregar a bitacora cuando delete en clientes
+      select sqconsecutivo.nextval, sysdate, to_char(sysdate, 'HH24:MI:SS'),
+        user, sys_context('userenv','ip_address'), 'DELETE', 'EMPLEADOS', 
+        'NOEMPLEADO', :old.noempleado -- old valor en trigger  
+        into vconsecutivo, vfecha, vhora, vusuario,vip, voperacion,
+          vtabla, vcampo, vvalor
+          from dual;
+     
+      insert into bitacora (consecutivo, fecha, hora, usuario, ip, operacion, tabla, campo, valor)
+       values (vconsecutivo, vfecha, vhora, vusuario, vip, voperacion, vtabla, vcampo, vvalor);
+    end if; -- deleting    
+    
+  if updating then
+    -- Instrucción para agregar a bitacora cuando update en clientes
+      select sqconsecutivo.nextval, sysdate, to_char(sysdate, 'HH24:MI:SS'),
+        user, sys_context('userenv','ip_address'), 'UPDATE', 'EMPLEADOS',
+        'NOEMPLEADO', :old.noempleado -- antiguo valor en trigger  
+        into vconsecutivo, vfecha, vhora, vusuario,vip, voperacion,
+          vtabla, vcampo, vvalor
+          from dual;
+          insert into bitacora (consecutivo, fecha, hora, usuario, ip, operacion, tabla, campo, valor)
+       values (vconsecutivo, vfecha, vhora, vusuario, vip, voperacion, vtabla, vcampo, vvalor);
+   end if; -- updating        
+ end; -- TRIGGER
+ 
+ -- Hacer un insert o update o delete en la tabla empleados
+ -- Y verificar em comportamiento del trigger
+    /* Probar y consultar bitacora */
+   SELECT * FROM bitacora;
+ 
+ 
+ 
