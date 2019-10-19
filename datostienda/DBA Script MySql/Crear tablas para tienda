@@ -1,0 +1,187 @@
+/*
+	Usar la BD tienda
+	Crear Tablas para tienda
+    Funciona en MySql
+*/
+
+use tienda;
+
+/* Eliminar tablas en caso de que existan */
+-- DROP TABLE facturas;
+-- DROP TABLE detalleventas;
+drop table ventas;
+drop table clientes;
+drop table tiposclientes;
+drop table empleados;
+drop table tiendas;
+drop table coloniasasentamientos;
+drop table tiposasentamientos;
+drop table municipios;
+drop table estados;
+drop table productos;
+drop table categorias;
+
+create table categorias
+  (
+    numcategoria integer not null,
+    nombre       varchar(50),
+    primary key(numcategoria)
+  ) engine=innodb default charset=utf8;
+  
+  
+  
+create table productos
+  (
+    articulo     varchar(20)  not null,
+    descripcion  varchar(70),
+    numcategoria integer not null,
+    precio float,
+    primary key(articulo), 
+    
+	constraint fkproductoscategorias 
+	foreign key (numcategoria) references categorias (numcategoria)
+		on delete restrict on update restrict
+) engine=innodb default charset=utf8;
+
+create table estados
+  (
+    estado      varchar(2) primary key not null,
+    nombre      varchar(40),
+    abreviatura varchar(6),
+    pais        varchar(5)
+  );
+create table municipios
+  (
+    municipio integer primary key not null,
+    nombre    varchar(90),
+    estado    varchar(2) not null,
+    constraint fkestadosmunicipios 
+		foreign key (estado) references estados (estado)
+			on delete restrict on update restrict
+  );
+create table tiposasentamientos
+  (
+    tipo               integer primary key not null,
+    nombreasentamiento varchar(50)
+  );
+create table coloniasasentamientos
+  (
+    numero           integer primary key not null,
+    nombre           varchar(90),
+    tipoasentamiento integer,
+    cpostal          varchar(5),
+    municipio        integer,
+    constraint fkcoloniasmunicipio foreign key (municipio) 
+		references municipios (municipio)
+		on delete restrict on update restrict,
+    constraint fkcoloniastipoasentamiento foreign key (tipoasentamiento) 
+		references tiposasentamientos (tipo)
+		on delete restrict on update restrict
+  );
+create table tiposclientes
+  (
+    tipo        char(1) primary key not null,
+    descripcion varchar(60)
+  );
+create table clientes
+  (
+    rfc               varchar(14) primary key not null,
+    nombrerazonsocial varchar(160),
+    tipo              char(1),
+    sexo              char(1),
+    fechanacimiento   date,
+    direccion         varchar(160),
+    actividad         varchar(160),
+    colonia           integer not null,
+    email             varchar(160),
+    telefono          varchar(14),
+    numero            integer unique,
+    fregistro         date,
+    constraint fkcoloniasclientes foreign key (colonia) 
+		references coloniasasentamientos (numero)
+		on delete restrict on update restrict,
+    constraint fktipoclientes foreign key (tipo) 
+		references tiposclientes (tipo)
+		on delete restrict on update restrict
+  ) ;
+create table tiendas
+  (
+    notienda    integer primary key not null,
+    nombre      varchar(90),
+    fechainicio date,
+    colonia     integer,
+    constraint fktiendascoloniaasentamientos foreign key (colonia) 
+		references coloniasasentamientos (numero)
+		on delete restrict on update restrict
+        
+  );
+  
+create table empleados
+  (
+    noempleado      integer primary key not null,
+    paterno         varchar(30),
+    materno         varchar(30),
+    nombre          varchar(30),
+    sexo            char(1),
+    fechanacimiento date,
+    fechaingreso    date,
+    tienda          integer,
+    colonia         integer not null,
+    fregistro       date,
+    constraint fktiendas foreign key (tienda) 
+		references tiendas (notienda)
+		on delete restrict on update restrict,
+        
+    constraint fkcoloniaasentam foreign key (colonia) 
+		references coloniasasentamientos (numero)
+    	on delete restrict on update restrict
+  );
+  
+create table ventas
+  (
+    noventa  integer primary key not null,
+    fecha    date,
+    cliente  integer,
+    empleado integer,
+    tienda   integer,
+    total float,
+    constraint fk_ventasclientes foreign key (cliente) 
+		references clientes (numero)
+		on delete restrict on update restrict,
+    constraint fk_empleadosventas foreign key (empleado) 
+		references empleados (noempleado)
+		on delete restrict on update restrict,
+    constraint fk_ventastiendas foreign key (tienda) 
+		references tiendas (notienda)
+		on delete restrict on update restrict        
+  );
+  
+create table detalleventas
+  (
+    noventa integer not null,
+    clave   varchar(20) not null,
+    cantidad float,
+    precio float,
+    importe float,
+    constraint fk_noventa foreign key (noventa) 
+		references ventas (noventa)
+        on delete restrict on update restrict,
+        
+    constraint fk_claveproducto foreign key (clave) 
+		references productos (articulo)
+		on delete restrict on update restrict
+  );
+create table facturas
+  (
+    nofactura  integer primary key not null,
+    fecha      date,
+    noventa    integer,
+    rfccliente varchar(14),
+    constraint fkfacturasventas foreign key (noventa) 
+		references ventas (noventa)
+		on delete restrict on update restrict,
+        
+    constraint fkfacturasclientes foreign key (rfccliente) 
+    references clientes (rfc)
+	on delete restrict on update restrict
+  );
