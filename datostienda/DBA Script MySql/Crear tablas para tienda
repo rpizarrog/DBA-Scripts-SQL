@@ -9,6 +9,8 @@ use tienda;
 /* Eliminar tablas en caso de que existan */
 -- DROP TABLE facturas;
 -- DROP TABLE detalleventas;
+drop table facturas;
+drop table detalleventas;
 drop table ventas;
 drop table clientes;
 drop table tiposclientes;
@@ -49,7 +51,7 @@ create table estados
     nombre      varchar(40),
     abreviatura varchar(6),
     pais        varchar(5)
-  );
+  ) engine=innodb default charset=utf8;
 create table municipios
   (
     municipio integer primary key not null,
@@ -58,12 +60,12 @@ create table municipios
     constraint fkestadosmunicipios 
 		foreign key (estado) references estados (estado)
 			on delete restrict on update restrict
-  );
+  ) engine=innodb default charset=utf8;
 create table tiposasentamientos
   (
     tipo               integer primary key not null,
     nombreasentamiento varchar(50)
-  );
+  ) engine=innodb default charset=utf8;
 create table coloniasasentamientos
   (
     numero           integer primary key not null,
@@ -77,12 +79,12 @@ create table coloniasasentamientos
     constraint fkcoloniastipoasentamiento foreign key (tipoasentamiento) 
 		references tiposasentamientos (tipo)
 		on delete restrict on update restrict
-  );
+  ) engine=innodb default charset=utf8;
 create table tiposclientes
   (
     tipo        char(1) primary key not null,
     descripcion varchar(60)
-  );
+  ) engine=innodb default charset=utf8;
 create table clientes
   (
     rfc               varchar(14) primary key not null,
@@ -103,7 +105,7 @@ create table clientes
     constraint fktipoclientes foreign key (tipo) 
 		references tiposclientes (tipo)
 		on delete restrict on update restrict
-  ) ;
+  ) engine=innodb default charset=utf8;
 create table tiendas
   (
     notienda    integer primary key not null,
@@ -135,7 +137,7 @@ create table empleados
     constraint fkcoloniaasentam foreign key (colonia) 
 		references coloniasasentamientos (numero)
     	on delete restrict on update restrict
-  );
+  ) engine=innodb default charset=utf8;
   
 create table ventas
   (
@@ -154,7 +156,7 @@ create table ventas
     constraint fk_ventastiendas foreign key (tienda) 
 		references tiendas (notienda)
 		on delete restrict on update restrict        
-  );
+  ) engine=innodb default charset=utf8;
   
 create table detalleventas
   (
@@ -170,7 +172,7 @@ create table detalleventas
     constraint fk_claveproducto foreign key (clave) 
 		references productos (articulo)
 		on delete restrict on update restrict
-  );
+  ) engine=innodb default charset=utf8;
 create table facturas
   (
     nofactura  integer primary key not null,
@@ -184,4 +186,4 @@ create table facturas
     constraint fkfacturasclientes foreign key (rfccliente) 
     references clientes (rfc)
 	on delete restrict on update restrict
-  );
+  ) engine=innodb default charset=utf8;
