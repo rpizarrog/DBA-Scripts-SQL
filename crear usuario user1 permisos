@@ -1,0 +1,38 @@
+CREATE USER C##user1 IDENTIFIED BY user1
+       DEFAULT TABLESPACE users  
+       TEMPORARY TABLESPACE temp
+       QUOTA UNLIMITED ON users
+      ACCOUNT UNLOCK ;
+      
+grant connect to C##user1
+
+grant CREATE SESSION TO c##user1
+
+GRANT SELECT, INSERT, DELETE, UPDATE 
+	ON C##Tienda.clientes TO c##user1
+	
+GRANT SELECT, INSERT, DELETE, UPDATE 
+	ON C##tienda.productos TO c##user1
+	
+GRANT SELECT, INSERT, DELETE, UPDATE 
+	ON C##tienda.ventas TO c##user1	
+	
+GRANT SELECT, INSERT, DELETE, UPDATE 
+	ON C##tienda.detalleventas TO c##user1	
+	
+GRANT SELECT, INSERT, DELETE, UPDATE 
+	ON C##tienda.coloniasasentamientos TO c##user1	
+	
+GRANT SELECT, INSERT, DELETE, UPDATE 
+	ON C##tienda.tiendas TO c##user1
+
+GRANT SELECT, INSERT, DELETE, UPDATE 
+	ON C##tienda.empleados TO c##user1
+	
+GRANT SELECT ON C##tienda.BITACORA TO c##user1
+	
+GRANT SELECT, INSERT, DELETE, UPDATE 
+	ON C##tienda.facturas TO c##user1	
+	
+
+
