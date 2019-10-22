@@ -1,3 +1,12 @@
+/* Antes de crear snónimos, es necesario otorgarle permisos a C## Con una conexion Sysdba y system */
+
+GRANT CREATE public SYNONYM  TO C##tienda -- Public
+
+-- or
+
+GRANT CREATE SYNONYM  TO C##user1 -- Private
+
+
 /* Con la conexion C##Tienda crear sinomimos */
 /* Ahora con una conexión de C##tienda */
 CREATE OR REPLACE PUBLIC SYNONYM sclientes 
