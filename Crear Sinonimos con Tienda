@@ -34,5 +34,16 @@ CREATE OR REPLACE PUBLIC SYNONYM sfacturas
 	for C##tienda.facturas;
 	
 /* Que diferencia hay con crear synonym private*/ 
+
+-- Ahora cuando ya se tienen sinónimos públicos
+SELECT * FROM sclientes
+	WHERE rfc = 'AGMA880402A19';
+
+
+
+-- Crear un sinonimo privado desde user1
 CREATE OR REPLACE Synonym spclientes
 	For c##tienda.clientes;
+
+SELECT * FROM spclientes
+	WHERE rfc = 'AGMA880402A19';
