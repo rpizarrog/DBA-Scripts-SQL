@@ -1,0 +1,32 @@
+/* Crear paquete que integre operaciones transacciones 
+ * sobre la tabla clientes
+ * CON EL USUARO C##TIENDA
+ * El paque se llamará pkprincipalclientes
+ * Se necesita proedimientos para:
+ ** Buscar un cliente por rfc y mostrar
+ ** Buscar un cliente por numero y mostrar
+ ** Agregar un cliente registro completo
+ ** Eliminar un cliente por su RFC
+ ** Actualizar los datos de un cliente excepto el RFC y el numero PK y Unica
+ ** Realizar el paquete paso a paso
+ **/
+CREATE OR REPLACE PACKAGE pkprincipalclientes
+AS	-- arg clientes.rfc%type DEL MISMO TIPO QUE RFC DE CLIENTES
+	PROCEDURE pencuentraclienteRFC(arg clientes.rfc%type);
+END; -- pkprincipalclientes
+
+CREATE OR REPLACE PACKAGE body pkprincipalclientes
+AS
+	PROCEDURE pencuentraclienteRFC(arg clientes.rfc%type)
+	AS
+	BEGIN
+			dbms_output.put_line('Estamos en procedimiento del paquete pkprincipalclientes');
+			dbms_output.put_line('El RFC recibido es: ' || arg);
+	end; -- pencuentraclienteRFC	
+
+END; -- pkclientes
+
+
+BEGIN
+	pkprincipalclientes.pencuentraclienteRFC('ALGO');
+END;
