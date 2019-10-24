@@ -76,4 +76,3 @@ end;
 
 /* Ahora ejecutamos la función: */
 select * from table (fndevuelveclienteshoy);
- 
