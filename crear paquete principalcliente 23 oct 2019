@@ -1,55 +1,45 @@
 /* Crear paquete que integre operaciones transacciones 
  * sobre la tabla clientes
  * CON EL USUARO C##TIENDA
- * El paque se llamará pkprincipalclientes
- * Se necesita proedimientos para:
- ** Buscar un cliente por rfc y mostrar
- ** Buscar un cliente por numero y mostrar
- ** Agregar un cliente registro completo
- ** Eliminar un cliente por su RFC
- ** Actualizar los datos de un cliente excepto el RFC y el numero PK y Unica
- ** Realizar el paquete paso a paso
- **/
-CREATE OR REPLACE PACKAGE pkprincipalclientes
-AS	-- arg clientes.rfc%type DEL MISMO TIPO QUE RFC DE CLIENTES
-	PROCEDURE pencuentraclienteRFC(arg clientes.rfc%type);
-END; -- pkprincipalclientes
-
-CREATE OR REPLACE PACKAGE body pkprincipalclientes
-AS
-	PROCEDURE pencuentraclienteRFC(arg clientes.rfc%type)
-	AS
-	BEGIN
-			dbms_output.put_line('Estamos en procedimiento del paquete pkprincipalclientes');
-			dbms_output.put_line('El RFC recibido es: ' || arg);
-	end; -- pencuentraclienteRFC	
-
-END; -- pkclientes
-
-
-BEGIN
-	pkprincipalclientes.pencuentraclienteRFC('ALGO');
-END;
-
-
-
-/* AHORA VAMOS A REALIZAR OTRO PROCEDIMIENTO DEL MISMO PAQUETE */
-/* Crear paquete que integre operaciones transacciones 
- * sobre la tabla clientes
- * CON EL USUARO C##TIENDA
  * El paquete se llamará pkprincipalclientes
  * Se necesita proedimientos para:
  ** Buscar un cliente por rfc y mostrar. YA
  ** Buscar un cliente por numero y mostrar. YA
- ** Agregar un cliente registro completo
- ** Eliminar un cliente por su RFC
- ** Actualizar los datos de un cliente excepto el RFC y el numero PK y Unica
+ ** Agregar un cliente registro completo YA
+ ** Eliminar un cliente por su RFC. YA
+ ** Actualizar los datos de un cliente excepto el RFC y el numero, 
+ *  son campos Llave primaria y Unica YA
+ *  Devolver varios regisros con Procedimiento PENDIENTE
  ** Realizar el paquete paso a paso
  **/
 CREATE OR REPLACE PACKAGE pkprincipalclientes
-AS	-- arg clientes.rfc%type DEL MISMO TIPO QUE RFC DE CLIENTES
+AS	
 	PROCEDURE pencuentraclienteRFC(arg clientes.rfc%type);
 	PROCEDURE pencuentraclienteNUMERO(arg clientes.numero%type);
+	PROCEDURE pagregarcliente(argrfc clientes.rfc%TYPE,
+				argnombre clientes.nombrerazonsocial%TYPE,
+				argtipo clientes.tipo%TYPE,
+				argsexo clientes.sexo%TYPE,
+				argfechanacimiento clientes.fechanacimiento%TYPE,
+				argdireccion clientes.direccion%TYPE,
+				argactividad clientes.actividad%TYPE,
+				argcolonia clientes.colonia%TYPE,
+				argemail clientes.email%TYPE,
+				argtelefono clientes.telefono%TYPE,
+				argnumero clientes.numero%type); -- Varios argumentos
+	PROCEDURE peliminarclienteRFC(arg clientes.rfc%type);	
+	PROCEDURE pactualizarrclienteRFC(argrfc clientes.rfc%TYPE,
+				argnombre clientes.nombrerazonsocial%TYPE,
+				argtipo clientes.tipo%TYPE,
+				argsexo clientes.sexo%TYPE,
+				argfechanacimiento clientes.fechanacimiento%TYPE,
+				argdireccion clientes.direccion%TYPE,
+				argactividad clientes.actividad%TYPE,
+				argcolonia clientes.colonia%TYPE,
+				argemail clientes.email%TYPE,
+				argtelefono clientes.telefono%TYPE); -- Varios argumentos
+
+
 END; -- pkprincipalclientes
 
 CREATE OR REPLACE PACKAGE body pkprincipalclientes
@@ -72,7 +62,7 @@ AS
 		
 	end; -- pencuentraclienteRFC
 	
-	PROCEDURE pencuentraclienteNUMERO(arg clientes.numero%type)
+	PROCEDURE pencuentraclienteNUMERO (arg clientes.numero%type)
 	AS
 	BEGIN
 			SELECT * INTO registro
@@ -88,11 +78,101 @@ AS
 			dbms_output.put_line('Teléfono:' || registro.telefono);		
 		
 	end; -- pencuentraclienteNUMERO
+	
+	PROCEDURE pagregarcliente(argrfc clientes.rfc%TYPE,
+				argnombre clientes.nombrerazonsocial%TYPE,
+				argtipo clientes.tipo%TYPE,
+				argsexo clientes.sexo%TYPE,
+				argfechanacimiento clientes.fechanacimiento%TYPE,
+				argdireccion clientes.direccion%TYPE,
+				argactividad clientes.actividad%TYPE,
+				argcolonia clientes.colonia%TYPE,
+				argemail clientes.email%TYPE,
+				argtelefono clientes.telefono%TYPE,
+				argnumero clientes.numero%type)
+	AS
+	BEGIN
+		 insert into clientes (rfc, nombrerazonsocial, tipo, sexo, fechanacimiento,
+direccion, actividad, colonia, email, telefono, numero, fregistro)
+       values (argrfc, argnombre, argtipo, argsexo, 
+				TO_DATE(argfechanacimiento,'DD-MM-YYYY'),
+				argdireccion, argactividad,
+				argcolonia, argemail, argtelefono, 
+				argnumero, sysdate);
+				dbms_output.put_line('Registro agregado...');
+					
+	END;
 
+	PROCEDURE peliminarclienteRFC(arg clientes.rfc%type)
+	AS
+	BEGIN
+			DELETE FROM CLIENTES	
+				WHERE rfc = arg;
+		dbms_output.put_line('Registro Eliminado...');
+	
+			
+			
+	end; --peliminarclienteRFC(arg clientes.rfc%type)
+	PROCEDURE pactualizarrclienteRFC(argrfc clientes.rfc%TYPE,
+				argnombre clientes.nombrerazonsocial%TYPE,
+				argtipo clientes.tipo%TYPE,
+				argsexo clientes.sexo%TYPE,
+				argfechanacimiento clientes.fechanacimiento%TYPE,
+				argdireccion clientes.direccion%TYPE,
+				argactividad clientes.actividad%TYPE,
+				argcolonia clientes.colonia%TYPE,
+				argemail clientes.email%TYPE,
+				argtelefono clientes.telefono%TYPE)
+	AS
+	BEGIN
+		UPDATE CLIENTES
+			SET nombrerazonsocial = argnombre,
+				tipo = argtipo,
+				sexo = argsexo,
+				fechanacimiento = argfechanacimiento,
+				direccion = argdireccion,
+				actividad = argactividad,
+				colonia = argcolonia,
+				email = argemail,
+				telefono = argtelefono,
+				fregistro = sysdate -- Dia de hoy				
+		WHERE rfc = argrfc;
+	
+		dbms_output.put_line('Registro actualizado');
+	end;
+	
 END; -- pkprincipalclientes
 
-/* Ejecutamoslos procedimientos que se tienen del paquete */
+/* Ejecutamos los procedimientos que se tienen del paquete */
 BEGIN
-	pkprincipalclientes.pencuentraclienterfc('ABBG961009A3');-- Cliente número 2000
-	pkprincipalclientes.pencuentraclienteNUMERO(2000);-- Cliente número 2000
+	
+	pkprincipalclientes.pactualizarrclienteRFC('PAGG991237', 'PAEZ GONZALEZ GABRIEL', 'F', 'M',
+      TO_DATE('10-10-1998', 'DD-MM-YYYY'), 'VIVE EN LA CALLE ENFRENTE', 'POR SU CUENTA', 180, 
+    'pag@gmail.com', '618102030', 400037);-- Agregar cliente
+    
 END;
+
+/* Solo consultar */
+BEGIN
+	pkprincipalclientes.pencuentraclienteRFC('PAGG991237');-- Cliente número 2000
+	pkprincipalclientes.pencuentraclienteNUMERO(400037);-- Cliente número 2000
+END;
+
+/* Eliminar cliente */
+BEGIN
+	pkprincipalclientes.peliminarclienteRFC('PAGG991237');
+end;
+
+/* ActualiZar cliente por su RFC 
+ * Se envían todos los parámetros excepto el numero
+ * porque este campo no se debe modificar por ser valor único y 
+ * que otras tablas dependen de el. TABLA VENTAS
+ * 
+ */
+BEGIN
+ 	pkprincipalclientes.pactualizarrclienteRFC('PAGG991237', 'PAEZ GONZALEZ GABRIELITA', 'F', 'F',
+      TO_DATE('10-11-1998', 'DD-MM-YYYY'), 'VIVE EN LA CALLE ENFRENTE ROJA', 'POR SU CUENTA ACT', 184, 
+    'pagg@gmail.com', '618102031');-- Agregar cliente
+    
+END;
+
