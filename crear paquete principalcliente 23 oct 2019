@@ -2,14 +2,14 @@
  * sobre la tabla clientes
  * CON EL USUARO C##TIENDA
  * El paquete se llamará pkprincipalclientes
- * Se necesita proedimientos para:
+ * Se necesita procedimientos para:
  ** Buscar un cliente por rfc y mostrar. YA
  ** Buscar un cliente por numero y mostrar. YA
  ** Agregar un cliente registro completo YA
  ** Eliminar un cliente por su RFC. YA
  ** Actualizar los datos de un cliente excepto el RFC y el numero, 
  *  son campos Llave primaria y Unica YA
- *  Devolver varios regisros con Procedimiento PENDIENTE
+ *  Devolver varios regisros con FUNCION YA
  ** Realizar el paquete paso a paso
  **/
 CREATE OR REPLACE PACKAGE pkprincipalclientes
@@ -38,6 +38,8 @@ AS
 				argcolonia clientes.colonia%TYPE,
 				argemail clientes.email%TYPE,
 				argtelefono clientes.telefono%TYPE); -- Varios argumentos
+
+	function fndevuelveclientes return cliente_temp;
 
 
 END; -- pkprincipalclientes
@@ -140,15 +142,48 @@ direccion, actividad, colonia, email, telefono, numero, fregistro)
 	
 		dbms_output.put_line('Registro actualizado');
 	end;
+
+	/* Crear una función que devuelve registros de clientes 
+	 * Hay varias alternativas
+	 * Primero crear 
+	 * */
+
+	 function fndevuelveclientes
+		return cliente_temp
+	as
+		registro cliente_temp := cliente_temp();
+		n integer := 0;
+	begin
+	for r in (select rfc, nombrerazonsocial, 
+		tipo, sexo, fechanacimiento, 
+		direccion, actividad, colonia,
+		email, telefono, numero,
+		fregistro
+		from clientes
+		WHERE EXTRACT(YEAR FROM fregistro) = EXTRACT(YEAR FROM sysdate) 
+  	    AND EXTRACT(month FROM fregistro) = EXTRACT(month FROM sysdate)
+  	   AND EXTRACT(day FROM fregistro) = extract(day FROM sysdate))
+		loop
+			registro.extend;
+			n := n + 1;
+			registro(n) := cliente_obj(r.rfc, r.nombrerazonsocial, 
+			r.tipo, r.sexo, r.fechanacimiento, 
+			r.direccion, r.actividad,r.colonia,
+			r.email, r.telefono, r.numero,
+			r.fregistro);
+		end loop;
+		return registro;
+	end; -- fndevuelveclientes
+	
 	
 END; -- pkprincipalclientes
 
 /* Ejecutamos los procedimientos que se tienen del paquete */
 BEGIN
 	
-	pkprincipalclientes.pactualizarrclienteRFC('PAGG991237', 'PAEZ GONZALEZ GABRIEL', 'F', 'M',
+	pkprincipalclientes.pagregarcliente('PAGG991238', 'PAEZ GONZALEZ GABRIEL', 'F', 'M',
       TO_DATE('10-10-1998', 'DD-MM-YYYY'), 'VIVE EN LA CALLE ENFRENTE', 'POR SU CUENTA', 180, 
-    'pag@gmail.com', '618102030', 400037);-- Agregar cliente
+    'pag@gmail.com', '618102030', 400038);-- Agregar cliente
     
 END;
 
@@ -175,4 +210,8 @@ BEGIN
     'pagg@gmail.com', '618102031');-- Agregar cliente
     
 END;
+
+
+/* Ejecutamos la función del paquete */
+select * from table (pkprincipalclientes.fndevuelveclientes);
 
