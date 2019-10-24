@@ -30,3 +30,69 @@ END; -- pkclientes
 BEGIN
 	pkprincipalclientes.pencuentraclienteRFC('ALGO');
 END;
+
+
+
+/* AHORA VAMOS A REALIZAR OTRO PROCEDIMIENTO DEL MISMO PAQUETE */
+/* Crear paquete que integre operaciones transacciones 
+ * sobre la tabla clientes
+ * CON EL USUARO C##TIENDA
+ * El paquete se llamará pkprincipalclientes
+ * Se necesita proedimientos para:
+ ** Buscar un cliente por rfc y mostrar. YA
+ ** Buscar un cliente por numero y mostrar. YA
+ ** Agregar un cliente registro completo
+ ** Eliminar un cliente por su RFC
+ ** Actualizar los datos de un cliente excepto el RFC y el numero PK y Unica
+ ** Realizar el paquete paso a paso
+ **/
+CREATE OR REPLACE PACKAGE pkprincipalclientes
+AS	-- arg clientes.rfc%type DEL MISMO TIPO QUE RFC DE CLIENTES
+	PROCEDURE pencuentraclienteRFC(arg clientes.rfc%type);
+	PROCEDURE pencuentraclienteNUMERO(arg clientes.numero%type);
+END; -- pkprincipalclientes
+
+CREATE OR REPLACE PACKAGE body pkprincipalclientes
+AS
+	registro clientes%rowtype; -- Misma estrutcura que clientes
+	PROCEDURE pencuentraclienteRFC(arg clientes.rfc%type)
+	AS
+	BEGIN
+			SELECT * INTO registro
+			FROM clientes
+			WHERE rfc = arg;
+		
+			dbms_output.put_line('Estamos en procedimiento del paquete pkprincipalclientes');
+			dbms_output.put_line('El RFC recibido es: ' || arg);
+			dbms_output.put_line('Datos del cliente');
+			dbms_output.put_line('NombreRazonSocial:' || registro.nombrerazonsocial);
+			dbms_output.put_line('Fecha de Nacimiento:' || registro.fechanacimiento);		
+			dbms_output.put_line('E Mail:' || registro.email);
+			dbms_output.put_line('Teléfono:' || registro.telefono);		
+		
+	end; -- pencuentraclienteRFC
+	
+	PROCEDURE pencuentraclienteNUMERO(arg clientes.numero%type)
+	AS
+	BEGIN
+			SELECT * INTO registro
+			FROM clientes
+			WHERE numero = arg;
+		
+			dbms_output.put_line('Estamos en procedimiento del paquete pkprincipalclientes');
+			dbms_output.put_line('El NUMERO recibido es: ' || arg);
+			dbms_output.put_line('Datos del cliente');
+			dbms_output.put_line('NombreRazonSocial:' || registro.nombrerazonsocial);
+			dbms_output.put_line('Fecha de Nacimiento:' || registro.fechanacimiento);		
+			dbms_output.put_line('E Mail:' || registro.email);
+			dbms_output.put_line('Teléfono:' || registro.telefono);		
+		
+	end; -- pencuentraclienteNUMERO
+
+END; -- pkprincipalclientes
+
+/* Ejecutamoslos procedimientos que se tienen del paquete */
+BEGIN
+	pkprincipalclientes.pencuentraclienterfc('ABBG961009A3');-- Cliente número 2000
+	pkprincipalclientes.pencuentraclienteNUMERO(2000);-- Cliente número 2000
+END;
