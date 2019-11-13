@@ -1,0 +1,79 @@
+/* Crea un objeto  de tipo clientes 
+ * Si tiene insuficientes privilegios entonces 
+ * Otorgarle privilegios con sysdba y system
+ * grant create type to C##Tienda
+ */
+
+DROP TYPE cliente_temp;
+DROP TYPE cliente_obj;
+
+create type cliente_obj 
+	is object (rfc varchar(14), 
+	nombrerazonsocial varchar(160),
+	tipo char(1),
+	sexo char(1),
+	fechanacimiento date,
+	direccion varchar(160),
+	actividad varchar(160),
+	colonia NUMBER,
+	email varchar(160),
+	telefono varchar(14),
+	numero NUMBER,
+	fregistro DATE);
+	
+/* Ahora a partir de este objeto crear 
+ * un tipo de dato que sea como tabla temporal
+*/
+
+create OR REPLACE type cliente_temp is table of cliente_obj;
+
+/* Con lo anterior creamos una función que utilice
+ * cliente_tempo para devolver registros
+ * */
+
+
+/* Probamos una consulta que luego estará en la funcion 
+ * Los clientes que se hayan registrado hoy: sysdate
+ * */
+select rfc, nombrerazonsocial, 
+	tipo, sexo, fechanacimiento, 
+	direccion, actividad, colonia,
+	email, telefono, numero,
+	fregistro
+	from clientes
+	WHERE EXTRACT(YEAR FROM fregistro) = EXTRACT(YEAR FROM sysdate) 
+      AND EXTRACT(month FROM fregistro) = EXTRACT(month FROM sysdate)
+     AND EXTRACT(day FROM fregistro) = extract(day FROM sysdate);
+ /* Ahora hacemos la función que devuelve 
+  * registros de clientes que se hayan registrado hoy
+  * */
+CREATE OR REPLACE function fndevuelveclienteshoy 
+return cliente_temp
+as
+	registro cliente_temp := cliente_temp();
+	n integer := 0;
+begin
+for r in (select rfc, nombrerazonsocial, 
+	tipo, sexo, fechanacimiento, 
+	direccion, actividad, colonia,
+	email, telefono, numero,
+	fregistro
+	from clientes
+	WHERE EXTRACT(YEAR FROM fregistro) = EXTRACT(YEAR FROM sysdate) 
+      AND EXTRACT(month FROM fregistro) = EXTRACT(month FROM sysdate)
+     AND EXTRACT(day FROM fregistro) = extract(day FROM sysdate))
+	loop
+		registro.extend;
+		n := n + 1;
+		registro(n) := cliente_obj(r.rfc, r.nombrerazonsocial, 
+		r.tipo, r.sexo, r.fechanacimiento, 
+		r.direccion, r.actividad,r.colonia,
+		r.email, r.telefono, r.numero,
+		r.fregistro);
+	end loop;
+	return registro;
+end;
+
+/* Ahora ejecutamos la función: */
+select * from table (fndevuelveclienteshoy);
+ 
